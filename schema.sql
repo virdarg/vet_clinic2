@@ -1,0 +1,41 @@
+/*
+ VetClinic SQLite schema. Author: student project. Date: 2026-10-29.
+ SQLite does not support stored procedures; their use cases live in business_logic.py.
+*/
+PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS Users(
+ UserID INTEGER PRIMARY KEY AUTOINCREMENT, Login TEXT NOT NULL UNIQUE,
+ PasswordHash TEXT NOT NULL, FullName TEXT NOT NULL,
+ Role TEXT NOT NULL DEFAULT 'user' CHECK(Role IN ('admin','user')),
+ CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS Pets(
+ PetID INTEGER PRIMARY KEY AUTOINCREMENT, OwnerID INTEGER NOT NULL REFERENCES Users(UserID),
+ PetName TEXT NOT NULL CHECK(length(trim(PetName))>0), Species TEXT NOT NULL CHECK(length(trim(Species))>0),
+ Breed TEXT, Age INTEGER NOT NULL DEFAULT 0 CHECK(Age BETWEEN 0 AND 100),
+ CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS Appointments(
+ AppointmentID INTEGER PRIMARY KEY AUTOINCREMENT, PetID INTEGER NOT NULL REFERENCES Pets(PetID),
+ OwnerID INTEGER NOT NULL REFERENCES Users(UserID), StartAt TEXT NOT NULL,
+ Reason TEXT NOT NULL CHECK(length(trim(Reason))>0), Kind TEXT NOT NULL CHECK(Kind IN ('Приём','Прививка')),
+ Status TEXT NOT NULL DEFAULT 'Запланирован' CHECK(Status IN ('Запланирован','Отменён','Завершён')),
+ CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS Products(
+ ProductID INTEGER PRIMARY KEY AUTOINCREMENT, ProductName TEXT NOT NULL UNIQUE,
+ Price NUMERIC NOT NULL CHECK(Price>=0), Stock INTEGER NOT NULL CHECK(Stock>=0),
+ Active INTEGER NOT NULL DEFAULT 1 CHECK(Active IN (0,1)));
+CREATE TABLE IF NOT EXISTS Purchases(
+ PurchaseID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL REFERENCES Users(UserID),
+ ProductID INTEGER NOT NULL REFERENCES Products(ProductID), Quantity INTEGER NOT NULL CHECK(Quantity>0),
+ UnitPrice NUMERIC NOT NULL CHECK(UnitPrice>=0), PurchasedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS AuditLog(
+ AuditID INTEGER PRIMARY KEY AUTOINCREMENT, TableName TEXT NOT NULL, Operation TEXT NOT NULL,
+ Data TEXT NOT NULL, Username TEXT NOT NULL DEFAULT 'application', ChangedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX IF NOT EXISTS IX_Pets_Owner ON Pets(OwnerID);
+CREATE INDEX IF NOT EXISTS IX_Appointments_StartAt ON Appointments(StartAt,Status);
+CREATE INDEX IF NOT EXISTS IX_Purchases_UserDate ON Purchases(UserID,PurchasedAt);
+CREATE VIEW IF NOT EXISTS vw_AppointmentDetails AS
+ SELECT a.AppointmentID,a.StartAt,a.Kind,a.Status,a.Reason,p.PetName,p.Species,u.FullName AS OwnerName
+ FROM Appointments a JOIN Pets p ON p.PetID=a.PetID JOIN Users u ON u.UserID=a.OwnerID;
+CREATE VIEW IF NOT EXISTS vw_ProductSales AS
+ SELECT p.ProductID,p.ProductName,COALESCE(SUM(x.Quantity),0) Sold,COALESCE(SUM(x.Quantity*x.UnitPrice),0) Revenue
+ FROM Products p LEFT JOIN Purchases x ON x.ProductID=p.ProductID GROUP BY p.ProductID,p.ProductName;

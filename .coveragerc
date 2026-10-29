@@ -1,0 +1,8 @@
+[run]
+branch = True
+source = business_logic,data_access,app
+omit = tests/*
+
+[report]
+show_missing = True
+skip_covered = False
