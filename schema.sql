@@ -1,7 +1,3 @@
-/*
- VetClinic SQLite schema. Author: student project. Date: 2026-10-29.
- SQLite does not support stored procedures; their use cases live in business_logic.py.
-*/
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS Users(
  UserID INTEGER PRIMARY KEY AUTOINCREMENT, Login TEXT NOT NULL UNIQUE,

@@ -8,7 +8,7 @@ from tkinter import ttk
 from unittest.mock import patch
 
 from data_access import Database
-import app  # Import the presentation module even when UI tests must be skipped headlessly.
+import app  
 
 class TkinterSystemTests(unittest.TestCase):
     @classmethod

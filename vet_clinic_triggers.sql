@@ -1,6 +1,3 @@
-/*
- SQLite triggers: row-level audit for Pets/Appointments and appointment conflict rule.
-*/
 CREATE TRIGGER IF NOT EXISTS trg_Pets_Audit_Insert AFTER INSERT ON Pets BEGIN
  INSERT INTO AuditLog(TableName,Operation,Data,Username)
  VALUES('Pets','INSERT',json_object('PetID',NEW.PetID,'PetName',NEW.PetName,'OwnerID',NEW.OwnerID),'application');

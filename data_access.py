@@ -1,4 +1,3 @@
-"""Data Access: SQLite connection and database initialization."""
 import os
 import sqlite3
 from contextlib import contextmanager

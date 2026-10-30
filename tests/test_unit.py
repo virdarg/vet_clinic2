@@ -5,7 +5,6 @@ from business_logic import ClinicService, password_hash, verify_password
 
 
 class NoDatabase:
-    """Fails fast if a validation-only test unexpectedly attempts database access."""
     def query(self, *_args, **_kwargs):
         raise AssertionError("Database must not be accessed by this unit test")
 

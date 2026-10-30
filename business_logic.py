@@ -1,4 +1,3 @@
-"""Business Logic: validation, authorization and transaction workflows."""
 import hashlib,hmac,os
 from datetime import datetime
 from data_access import Database

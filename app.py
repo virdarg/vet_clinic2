@@ -1,4 +1,3 @@
-"""Tkinter desktop client for the SQLite Vet Clinic demo."""
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
